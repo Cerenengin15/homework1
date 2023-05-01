@@ -23,13 +23,13 @@ import java.util.Objects;
 
 public class HelloController  {
 
-    dictionaryEng engDictionary = new dictionaryEng();
-    dictionaryFra fraDictionary = new dictionaryFra();
-    dictionaryTur turDictionary = new dictionaryTur();
-    dictionaryEll ellDictionary = new dictionaryEll();
-    dictionarySwe sweDictionary = new dictionarySwe();
-    dictionaryDeu deuDictionary = new dictionaryDeu();
-    dictionaryIta itaDictionary = new dictionaryIta();
+    private static final dictionaryEng engDictionary = new dictionaryEng();
+    private static final dictionaryFra fraDictionary = new dictionaryFra();
+    private static final dictionaryTur turDictionary = new dictionaryTur();
+    private static final dictionaryEll ellDictionary = new dictionaryEll();
+    private static final dictionarySwe sweDictionary = new dictionarySwe();
+    private static final dictionaryDeu deuDictionary = new dictionaryDeu();
+    private static final dictionaryIta itaDictionary = new dictionaryIta();
 
 
     @FXML
@@ -76,29 +76,36 @@ public class HelloController  {
     @FXML
     public void srcBarAction(ActionEvent event) {
         Stage stage1 = (Stage) srcBar.getScene().getWindow();
-        String srcWord = srcBar.getText();
+        String srcWord = srcBar.getText().toLowerCase();
         char firstLetter = srcWord.charAt(0);
         int alphabet = (char) ((int) firstLetter);
 
-        if (97 <= alphabet && alphabet <= 122) {
+        Thread queryThread = new Thread(() -> {
+            if (97 <= alphabet && alphabet <= 122) {
+                orgTurkish.setText(turDictionary.turkish(srcWord));
+                orgEnglish.setText(engDictionary.english(srcWord));
+                orgFrench.setText(fraDictionary.french(srcWord));
+                orgGerman.setText(deuDictionary.deutsch(srcWord));
+                orgItalian.setText(itaDictionary.italian(srcWord));
+                orgSwedish.setText(sweDictionary.swedish(srcWord));
+            } else {
+                orgSwedish.setText(sweDictionary.swedish(srcWord));
+                orgTurkish.setText(turDictionary.turkish(srcWord));
+                orgModernGreek.setText(ellDictionary.greek(srcWord));
+            }
+        });
 
-            orgTurkish.setText(turDictionary.turkish(srcWord));
-            orgEnglish.setText(engDictionary.english(srcWord));
-            orgFrench.setText(fraDictionary.french(srcWord));
-            orgGerman.setText(deuDictionary.deutsch(srcWord));
-            orgItalian.setText(itaDictionary.italian(srcWord));
-            orgSwedish.setText(sweDictionary.swedish(srcWord));
+        queryThread.start();
+
+        try {
+            queryThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        else {
-            orgSwedish.setText(sweDictionary.swedish(srcWord));
-            orgTurkish.setText(turDictionary.turkish(srcWord));
-            orgModernGreek.setText(ellDictionary.greek(srcWord));
+
+
         }
 
-
-
-
-    }
     private Stage stage;
     private Scene scene;
     private Parent root;
